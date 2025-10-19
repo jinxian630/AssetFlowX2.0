@@ -84,3 +84,42 @@ body {
   background-color: hsl(var(--card));
   border-color: hsl(var(--border));
 }
+
+/* Chart readability improvements (Recharts under Tremor) */
+.recharts-text { fill: hsl(var(--muted-foreground)); }
+.recharts-cartesian-axis-tick-value { fill: hsl(var(--muted-foreground)); }
+.recharts-cartesian-axis-line,
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: hsl(var(--border));
+  opacity: 0.6;
+}
+.recharts-legend-item-text { color: hsl(var(--foreground)); }
+.recharts-default-tooltip {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-radius: 0.75rem !important;
+}
+
+/* --- Fallback classes for Tremor chart colors (when Tailwind doesn't emit them) --- */
+/* Emerald */
+.fill-emerald-500 { fill: #10B981 !important; }
+.stroke-emerald-500 { stroke: #10B981 !important; }
+.fill-emerald-500\/70 { fill: rgba(16, 185, 129, 0.70) !important; }
+/* Rose */
+.fill-rose-500 { fill: #F43F5E !important; }
+.stroke-rose-500 { stroke: #F43F5E !important; }
+.fill-rose-500\/70 { fill: rgba(244, 63, 94, 0.70) !important; }
+/* Amber */
+.fill-amber-500 { fill: #F59E0B !important; }
+.stroke-amber-500 { stroke: #F59E0B !important; }
+.fill-amber-500\/70 { fill: rgba(245, 158, 11, 0.70) !important; }
+/* Violet */
+.fill-violet-500 { fill: #8B5CF6 !important; }
+.stroke-violet-500 { stroke: #8B5CF6 !important; }
+.fill-violet-500\/70 { fill: rgba(139, 92, 246, 0.70) !important; }
+/* Fuchsia */
+.fill-fuchsia-500 { fill: #D946EF !important; }
+.stroke-fuchsia-500 { stroke: #D946EF !important; }
+.fill-fuchsia-500\/70 { fill: rgba(217, 70, 239, 0.70) !important; }

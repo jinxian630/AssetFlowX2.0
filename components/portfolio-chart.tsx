@@ -20,7 +20,7 @@ export function PortfolioChart({ data }: PortfolioChartProps) {
         data={chartdata}
         index="date"
         categories={["Portfolio Value"]}
-        colors={["purple"]}
+        colors={["violet"]}
         valueFormatter={(value) => `$${(value / 1000000).toFixed(2)}M`}
         yAxisWidth={65}
         showAnimation={true}

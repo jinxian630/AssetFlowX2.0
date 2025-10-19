@@ -7,6 +7,8 @@ export default {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    // Include Tremor for chart colors and utilities
+    "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     container: {
@@ -63,6 +65,11 @@ export default {
           800: "#3D1A97",
           900: "#33177D",
         },
+        flow: {
+          inflow: "#10B981",
+          outflow: "#F43F5E",
+          net: "#F59E0B",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -92,6 +99,9 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      zIndex: {
+        "60": "60",
       },
     },
   },

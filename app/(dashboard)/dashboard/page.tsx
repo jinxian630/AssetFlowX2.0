@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { TrendingUp, TrendingDown, ArrowUpRight, RefreshCw } from "lucide-react"
+import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react"
 import { PortfolioData, FlowData } from "@/lib/types"
 import { PortfolioChart } from "@/components/portfolio-chart"
 import { FlowChart } from "@/components/flow-chart"
@@ -9,15 +9,14 @@ import { TokensTable } from "@/components/tokens-table"
 import { LoadingKPI, LoadingChart, LoadingTable } from "@/components/loading-state"
 import { ErrorState } from "@/components/error-state"
 import { Button } from "@/components/ui/button"
-
-type TimeRange = "24h" | "7d" | "30d" | "all"
+import { StatCard } from "@/components/ui/stat-card"
 
 export default function DashboardPage() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
   const [flowData, setFlowData] = useState<FlowData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [timeRange, setTimeRange] = useState<TimeRange>("30d")
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "all">("30d")
 
   const fetchData = async () => {
     try {
@@ -96,7 +95,7 @@ export default function DashboardPage() {
 
       {/* Time Range Tabs */}
       <div className="flex gap-2">
-        {(["24h", "7d", "30d", "all"] as TimeRange[]).map((range) => (
+        {(["24h", "7d", "30d", "all"] as const).map((range) => (
           <button
             key={range}
             onClick={() => setTimeRange(range)}
@@ -121,70 +120,33 @@ export default function DashboardPage() {
           </>
         ) : portfolioData ? (
           <>
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Total Assets
-                </p>
-                <TrendingUp className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="mt-3">
-                <p className="text-3xl font-bold">
-                  ${portfolioData.totalAssets.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Portfolio value
-                </p>
-              </div>
-            </div>
+            <StatCard
+              title="Total Assets"
+              value={
+                `$${portfolioData.totalAssets.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+              }
+              icon={TrendingUp}
+            />
 
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">
-                  PnL (24h)
-                </p>
-                {portfolioData.pnl24h >= 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-destructive" />
-                )}
-              </div>
-              <div className="mt-3">
-                <p className={`text-3xl font-bold ${
-                  portfolioData.pnl24h >= 0 ? 'text-green-500' : 'text-destructive'
-                }`}>
-                  {portfolioData.pnl24h >= 0 ? '+' : ''}
-                  ${portfolioData.pnl24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {((portfolioData.pnl24h / portfolioData.totalAssets) * 100).toFixed(2)}% change
-                </p>
-              </div>
-            </div>
+            <StatCard
+              title="PnL (24h)"
+              value={
+                `${portfolioData.pnl24h >= 0 ? "+" : ""}$${portfolioData.pnl24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+              }
+              icon={portfolioData.pnl24h >= 0 ? TrendingUp : TrendingDown}
+              change={{
+                value: Number(((portfolioData.pnl24h / portfolioData.totalAssets) * 100).toFixed(2)),
+                label: "change",
+              }}
+            />
 
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Net Flow (7d)
-                </p>
-                {portfolioData.netflow7d >= 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-destructive" />
-                )}
-              </div>
-              <div className="mt-3">
-                <p className={`text-3xl font-bold ${
-                  portfolioData.netflow7d >= 0 ? 'text-green-500' : 'text-destructive'
-                }`}>
-                  {portfolioData.netflow7d >= 0 ? '+' : ''}
-                  ${portfolioData.netflow7d.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {portfolioData.netflow7d >= 0 ? 'Net inflow' : 'Net outflow'}
-                </p>
-              </div>
-            </div>
+            <StatCard
+              title="Net Flow (7d)"
+              value={
+                `${portfolioData.netflow7d >= 0 ? "+" : ""}$${portfolioData.netflow7d.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+              }
+              icon={portfolioData.netflow7d >= 0 ? TrendingUp : TrendingDown}
+            />
           </>
         ) : null}
       </div>

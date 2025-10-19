@@ -10,75 +10,120 @@ import {
   Bell,
   Shield,
   Menu,
-  X
+  X,
+  ShoppingCart,
+  Award,
+  ShieldCheck,
+  Wallet,
+  ChevronRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { useTheme } from "next-themes"
 
 const navItems = [
+  // Portfolio & Analytics
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+    section: "portfolio"
   },
   {
     title: "Flows",
     href: "/flows",
     icon: ArrowLeftRight,
+    section: "portfolio"
   },
   {
     title: "Transactions",
     href: "/transactions",
     icon: Receipt,
+    section: "portfolio"
   },
   {
     title: "Alerts",
     href: "/alerts",
     icon: Bell,
+    section: "portfolio"
   },
   {
     title: "Risk",
     href: "/risk",
     icon: Shield,
+    section: "portfolio"
+  },
+  // Payments & Settlement
+  {
+    title: "Payments",
+    href: "/payments-dashboard",
+    icon: Wallet,
+    section: "payments"
+  },
+  {
+    title: "Checkout",
+    href: "/checkout",
+    icon: ShoppingCart,
+    section: "payments"
+  },
+  {
+    title: "Orders",
+    href: "/orders",
+    icon: Receipt,
+    section: "payments"
+  },
+  {
+    title: "Credentials",
+    href: "/credentials",
+    icon: Award,
+    section: "payments"
+  },
+  {
+    title: "Verify",
+    href: "/verify",
+    icon: ShieldCheck,
+    section: "payments"
   },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   return (
     <>
       {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden"
-        onClick={() => setCollapsed(!collapsed)}
-      >
-        {collapsed ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="bg-background shadow-lg"
+        >
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </div>
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card transition-transform duration-200",
-          "md:translate-x-0",
-          collapsed ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card transition-transform duration-200 ease-in-out lg:translate-x-0",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col backdrop-blur-xl">
           {/* Logo */}
-          <div className="flex h-16 items-center border-b border-border px-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex h-16 items-center border-b px-6">
+            <Link href="/dashboard" className="flex items-center gap-3 group">
               <Image
                 src="/assetflowx-logo.png"
                 alt="AssetFlowX logo"
                 width={32}
                 height={32}
                 priority
-                className="h-8 w-8 rounded-md object-cover"
+                className="h-8 w-8 rounded-lg object-cover shadow-lg group-hover:shadow-xl transition-shadow"
               />
               <span className="text-xl font-bold brand-gradient-text">
                 AssetFlowX
@@ -87,49 +132,112 @@ export function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 p-4">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
+          <nav className="flex-1 overflow-y-auto px-3 py-4">
+            {/* Portfolio Section */}
+            <div className="mb-6">
+              <div className="mb-2 px-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Portfolio & Analytics
+                </p>
+              </div>
+              <div className="space-y-1">
+                {navItems.filter(item => item.section === "portfolio").map((item) => {
+                  const isActive = pathname === item.href
+                  const Icon = item.icon
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
-                    "hover:bg-accent hover:text-accent-foreground",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-soft"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Link>
-              )
-            })}
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "group flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </div>
+                      {isActive && <ChevronRight className="h-4 w-4" />}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Payments Section */}
+            <div>
+              <div className="mb-2 px-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Payments & Settlement
+                </p>
+              </div>
+              <div className="space-y-1">
+                {navItems.filter(item => item.section === "payments").map((item) => {
+                  const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
+                  const Icon = item.icon
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "group flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </div>
+                      {isActive && <ChevronRight className="h-4 w-4" />}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-border p-4">
-            <div className="rounded-xl bg-brand-500/10 p-4">
-              <p className="text-xs font-semibold text-brand-500">
-                Phase 3 Active
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Navigation shell ready
+          <div className="border-t p-4 space-y-3">
+            {/* Theme Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-full justify-start gap-2"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+              <span className="text-sm">{theme === "dark" ? "Light" : "Dark"} Mode</span>
+            </Button>
+
+            {/* Status Badge */}
+            <div className="rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 p-3 border border-primary/20">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-xs font-semibold text-primary">
+                  Full Platform Active
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Portfolio + Payments Unified
               </p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
-      {collapsed && (
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm md:hidden"
-          onClick={() => setCollapsed(false)}
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
         />
       )}
     </>

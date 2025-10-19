@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/sidebar"
+import { LayoutChrome } from "@/components/nav/LayoutChrome"
 import { Topbar } from "@/components/topbar"
 
 interface DashboardShellProps {
@@ -7,16 +7,11 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children }: DashboardShellProps) {
   return (
-    <div className="relative min-h-screen bg-background">
-      <Sidebar />
-
-      <div className="md:pl-64">
-        <Topbar />
-
-        <main className="p-6">
-          {children}
-        </main>
-      </div>
-    </div>
+    <LayoutChrome>
+      <Topbar />
+      <main className="p-6">
+        {children}
+      </main>
+    </LayoutChrome>
   )
 }

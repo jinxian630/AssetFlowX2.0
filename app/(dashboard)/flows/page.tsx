@@ -1,18 +1,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowDownLeft, ArrowUpRight, Minus, RefreshCw } from "lucide-react"
+import { ArrowDownLeft, ArrowUpRight, Minus, RefreshCw, PanelRightOpen } from "lucide-react"
 import { FlowData } from "@/lib/types"
 import { NetflowChart } from "@/components/netflow-chart"
 import { CounterpartiesTable } from "@/components/counterparties-table"
 import { LoadingKPI, LoadingChart, LoadingTable } from "@/components/loading-state"
 import { ErrorState } from "@/components/error-state"
 import { Button } from "@/components/ui/button"
+import { KpiCard } from "@/components/kpi-card"
+import { RangeTabs, type TimeRange } from "@/components/range-tabs"
+import { FlowsFilters, type FlowType, type ChainFilter } from "@/components/flows-filters"
+import { DeskDrawer } from "@/components/desk-drawer"
 
 export default function FlowsPage() {
   const [flowData, setFlowData] = useState<FlowData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [deskOpen, setDeskOpen] = useState(false)
+
+  // Filters - default values, RangeTabs and FlowsFilters will sync to URL
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d")
+  const [flowType, setFlowType] = useState<FlowType>("all")
+  const [chain, setChain] = useState<ChainFilter>("all")
+  const [counterparty, setCounterparty] = useState<string | undefined>(undefined)
 
   const fetchData = async () => {
     try {
@@ -32,6 +43,13 @@ export default function FlowsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const resetFilters = () => {
+    setTimeRange("30d")
+    setFlowType("all")
+    setChain("all")
+    setCounterparty(undefined)
   }
 
   useEffect(() => {
@@ -66,32 +84,43 @@ export default function FlowsPage() {
             Track inflows and outflows across all chains and counterparties
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={fetchData}
-          disabled={loading}
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-        </Button>
+        <div className="flex items-center gap-2">
+          <RangeTabs value={timeRange} onValueChange={setTimeRange} />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={fetchData}
+            disabled={loading}
+            aria-label="Refresh data"
+            className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setDeskOpen(true)}
+            aria-label="Open desk drawer"
+            className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <PanelRightOpen className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        </div>
       </div>
 
       {/* Filters Bar */}
       <div className="card p-4">
-        <div className="flex items-center gap-4">
-          <p className="text-sm font-medium">Filters:</p>
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium">
-              Last 30 days
-            </button>
-            <button className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm hover:bg-muted/80">
-              All chains
-            </button>
-            <button className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm hover:bg-muted/80">
-              All counterparties
-            </button>
-          </div>
-        </div>
+        <FlowsFilters
+          timeRange={timeRange}
+          flowType={flowType}
+          chain={chain}
+          counterparty={counterparty}
+          onTimeRangeChange={setTimeRange}
+          onFlowTypeChange={setFlowType}
+          onChainChange={setChain}
+          onCounterpartyChange={setCounterparty}
+          onResetFilters={resetFilters}
+        />
       </div>
 
       {/* Flow KPIs */}
@@ -104,59 +133,25 @@ export default function FlowsPage() {
           </>
         ) : flowData ? (
           <>
-            <div className="card p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="rounded-full p-2 bg-green-500/10">
-                  <ArrowDownLeft className="h-5 w-5 text-green-500" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">Inflow</p>
-              </div>
-              <p className="text-3xl font-bold text-green-500">
-                ${flowData.inflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {flowData.history.filter(h => h.inflow > 0).length} periods
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="rounded-full p-2 bg-destructive/10">
-                  <ArrowUpRight className="h-5 w-5 text-destructive" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">Outflow</p>
-              </div>
-              <p className="text-3xl font-bold text-destructive">
-                ${flowData.outflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {flowData.history.filter(h => h.outflow > 0).length} periods
-              </p>
-            </div>
-
-            <div className="card p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`rounded-full p-2 ${
-                  flowData.netflow >= 0 ? 'bg-green-500/10' : 'bg-destructive/10'
-                }`}>
-                  {flowData.netflow >= 0 ? (
-                    <ArrowDownLeft className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <Minus className="h-5 w-5 text-destructive" />
-                  )}
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">Net Flow</p>
-              </div>
-              <p className={`text-3xl font-bold ${
-                flowData.netflow >= 0 ? 'text-green-500' : 'text-destructive'
-              }`}>
-                {flowData.netflow >= 0 ? '+' : ''}
-                ${flowData.netflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {flowData.netflow >= 0 ? 'Positive net flow' : 'Negative net flow'}
-              </p>
-            </div>
+            <KpiCard
+              label="Inflow"
+              value={`$${flowData.inflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              icon={ArrowDownLeft}
+            />
+            <KpiCard
+              label="Outflow"
+              value={`$${flowData.outflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              icon={ArrowUpRight}
+            />
+            <KpiCard
+              label="Net Flow"
+              value={`${flowData.netflow >= 0 ? '+' : ''}$${flowData.netflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              icon={flowData.netflow >= 0 ? ArrowDownLeft : Minus}
+              delta={{
+                value: 12.5,
+                label: "vs last period"
+              }}
+            />
           </>
         ) : null}
       </div>
@@ -176,6 +171,9 @@ export default function FlowsPage() {
       ) : flowData ? (
         <CounterpartiesTable counterparties={flowData.counterparties} />
       ) : null}
+
+      {/* Desk Drawer */}
+      <DeskDrawer open={deskOpen} onOpenChange={setDeskOpen} />
     </div>
   )
 }

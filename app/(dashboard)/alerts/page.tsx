@@ -9,6 +9,7 @@ import { AlertEventsTable } from "@/components/alert-events-table"
 import { LoadingKPI } from "@/components/loading-state"
 import { ErrorState } from "@/components/error-state"
 import { Button } from "@/components/ui/button"
+import { StatCard } from "@/components/ui/stat-card"
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([])
@@ -160,22 +161,10 @@ export default function AlertsPage() {
           </>
         ) : (
           <>
-            <div className="card p-4">
-              <p className="text-sm text-muted-foreground">Total Rules</p>
-              <p className="text-2xl font-bold mt-1">{stats.total}</p>
-            </div>
-            <div className="card p-4">
-              <p className="text-sm text-muted-foreground">Active Rules</p>
-              <p className="text-2xl font-bold text-green-500 mt-1">{stats.active}</p>
-            </div>
-            <div className="card p-4">
-              <p className="text-sm text-muted-foreground">Triggered Today</p>
-              <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.triggered}</p>
-            </div>
-            <div className="card p-4">
-              <p className="text-sm text-muted-foreground">High Severity</p>
-              <p className="text-2xl font-bold text-destructive mt-1">{stats.highSeverity}</p>
-            </div>
+            <StatCard title="Total Rules" value={stats.total} />
+            <StatCard title="Active Rules" value={stats.active} />
+            <StatCard title="Triggered Today" value={stats.triggered} />
+            <StatCard title="High Severity" value={stats.highSeverity} />
           </>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, BarChart } from "@tremor/react"
+import { colorsFlowByChain, fmtCurrencyK } from "@/lib/chart-theme"
 
 interface FlowChartProps {
   data: Array<{ chain: string; inflow: number; outflow: number }>
@@ -21,8 +22,8 @@ export function FlowChart({ data }: FlowChartProps) {
         data={chartdata}
         index="chain"
         categories={["Inflow", "Outflow"]}
-        colors={["emerald", "rose"]}
-        valueFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+        colors={colorsFlowByChain as unknown as string[]}
+        valueFormatter={fmtCurrencyK}
         yAxisWidth={65}
         showAnimation={true}
         stack={false}
