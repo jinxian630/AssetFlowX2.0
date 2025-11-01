@@ -10,9 +10,12 @@ import {
   Package,
   Award,
   ShieldCheck,
+  BookAIcon,
+  LibraryBig,
+  BookOpen,
 } from "lucide-react"
 
-export type ModuleKey = 'portfolio' | 'payments' | 'credentials' | 'verify'
+export type ModuleKey = 'portfolio' | 'payments' | 'credentials' | 'verify' | 'management'
 
 export interface NavItem {
   label: string
@@ -58,5 +61,14 @@ export const NAV_TREE: Record<ModuleKey, ModuleConfig> = {
     label: 'Verify',
     href: '/verify',
     hasDrawer: false,
+  },
+  management: {
+    label: 'Course & Task Management',
+    hasDrawer: true,
+    items: [
+      { label: 'Course management', href: '/course-management', key: 'courseManagement', icon: BookAIcon },
+      { label: 'Marketplace', href: '/marketplace', key: 'marketplace', icon: LibraryBig },
+      { label: 'My Course', href: '/myCourse', key: 'myCourse', icon: BookOpen },
+    ],
   },
 } as const

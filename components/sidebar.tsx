@@ -15,7 +15,8 @@ import {
   Award,
   ShieldCheck,
   Wallet,
-  ChevronRight
+  ChevronRight,
+  Settings2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -85,6 +86,13 @@ const navItems = [
     icon: ShieldCheck,
     section: "payments"
   },
+  // management
+  {
+    title: "Management",
+    href: "/course-management",
+    icon: Settings2,
+    section: "management"
+  }
 ]
 
 export function Sidebar() {
@@ -177,6 +185,41 @@ export function Sidebar() {
               </div>
               <div className="space-y-1">
                 {navItems.filter(item => item.section === "payments").map((item) => {
+                  const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
+                  const Icon = item.icon
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "group flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </div>
+                      {isActive && <ChevronRight className="h-4 w-4" />}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Management Section */}
+            <div>
+              <div className="mb-2 px-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Course & Task Management
+                </p>
+              </div>
+              <div className="space-y-1">
+                {navItems.filter(item => item.section === "management").map((item) => {
                   const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
                   const Icon = item.icon
 
