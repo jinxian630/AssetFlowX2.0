@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { LayoutDashboard, CreditCard, Award, ShieldCheck, ChevronRight, Settings2 } from "lucide-react"
+import { LayoutDashboard, CreditCard, Award, ShieldCheck, ChevronRight, Settings2, Briefcase } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ModuleKey, NAV_TREE } from "@/types/nav"
 import { motion } from "framer-motion"
@@ -16,6 +16,7 @@ const MODULE_ICONS: Record<ModuleKey, typeof LayoutDashboard> = {
   payments: CreditCard,
   credentials: Award,
   verify: ShieldCheck,
+  jobMatching: Briefcase,
   management: Settings2,
 }
 

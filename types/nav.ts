@@ -13,9 +13,10 @@ import {
   BookAIcon,
   LibraryBig,
   BookOpen,
+  Briefcase,
 } from "lucide-react"
 
-export type ModuleKey = 'portfolio' | 'payments' | 'credentials' | 'verify' | 'management'
+export type ModuleKey = 'portfolio' | 'payments' | 'credentials' | 'verify' | 'jobMatching' | 'management'
 
 export interface NavItem {
   label: string
@@ -60,6 +61,11 @@ export const NAV_TREE: Record<ModuleKey, ModuleConfig> = {
   verify: {
     label: 'Verify',
     href: '/verify',
+    hasDrawer: false,
+  },
+  jobMatching: {
+    label: 'Job Matching',
+    href: '/job-matching',
     hasDrawer: false,
   },
   management: {

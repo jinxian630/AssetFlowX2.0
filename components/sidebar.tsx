@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Wallet,
   ChevronRight,
-  Settings2
+  Settings2,
+  Briefcase
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -78,6 +79,12 @@ const navItems = [
     title: "Credentials",
     href: "/credentials",
     icon: Award,
+    section: "payments"
+  },
+  {
+    title: "Job Matching",
+    href: "/job-matching",
+    icon: Briefcase,
     section: "payments"
   },
   {
