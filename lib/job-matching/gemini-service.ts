@@ -1,6 +1,7 @@
 // ============================================================================
 // AssetFlowX - Gemini Service for Job Matching
-// AI-powered resume to job position matching using Gemini 2.5 Flash
+// AI-powered resume to job position matching using Gemini
+// Includes retry logic for 503 errors (model overload)
 // ============================================================================
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
@@ -171,9 +172,28 @@ export async function matchResumeToJob(
     
     const prompt = buildJobMatchingPrompt(resumeText, jobPosition, userCredentials)
     
-    const geminiResult = await model.generateContent(prompt)
-    const response = await geminiResult.response
-    const text = response.text()
+    // Retry logic for 503 errors
+    let geminiResult
+    let response
+    let text
+    let attempts = 0
+    const maxAttempts = 3
+    
+    while (attempts < maxAttempts) {
+      try {
+        geminiResult = await model.generateContent(prompt)
+        response = await geminiResult.response
+        text = response.text()
+        break // Success, exit retry loop
+      } catch (retryError) {
+        attempts++
+        if (attempts >= maxAttempts) {
+          throw retryError // Re-throw on final attempt
+        }
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempts))
+      }
+    }
     
     // Parse and validate response
     const parsed = parseGeminiResponse(text)

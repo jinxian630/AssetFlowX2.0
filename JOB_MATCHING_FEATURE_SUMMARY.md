@@ -69,8 +69,10 @@ git checkout HEAD -- [file paths]
 Add to `.env.local`:
 ```env
 GEMINI_API_KEY=your_api_key_here
-GEMINI_MODEL=gemini-2.0-flash-exp  # Optional
+GEMINI_MODEL=gemini-2.5-flash  # Optional, defaults to gemini-2.5-flash
 ```
+
+**Note:** The service includes automatic retry logic for 503 errors (model overload). It will retry up to 3 times with exponential backoff.
 
 ---
 
@@ -102,7 +104,7 @@ GEMINI_MODEL=gemini-2.0-flash-exp  # Optional
 
 - All files are ready and should compile without errors
 - Feature is integrated with existing credential tracking system
-- Uses Gemini 2.5 Flash (via gemini-2.0-flash-exp model)
+- Uses Gemini 2.5 Flash (with retry logic for 503 errors)
 - Mock job positions are included for testing
-- Resume text extraction supports .txt files (can be extended for PDF/DOCX)
+- Resume text extraction supports PDF, DOCX, and TXT files
 
