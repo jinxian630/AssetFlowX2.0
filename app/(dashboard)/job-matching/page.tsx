@@ -108,7 +108,10 @@ export default function JobMatchingPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || "Failed to match resume")
+        const errorMessage = error.details 
+          ? `${error.error}: ${error.details}`
+          : error.error || "Failed to match resume"
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()

@@ -68,7 +68,7 @@ git checkout HEAD -- [file paths]
 
 Add to `.env.local`:
 ```env
-GEMINI_API_KEY=your_api_key_here
+GENERATIVE_LANGUAGE_API_KEY=your_api_key_here
 GEMINI_MODEL=gemini-2.5-flash  # Optional, defaults to gemini-2.5-flash
 ```
 
@@ -88,7 +88,7 @@ GEMINI_MODEL=gemini-2.5-flash  # Optional, defaults to gemini-2.5-flash
 
 ## Testing Checklist
 
-- [ ] Add GEMINI_API_KEY to .env.local
+- [ ] Add GENERATIVE_LANGUAGE_API_KEY to .env.local
 - [ ] Navigate to /job-matching
 - [ ] Upload/paste resume text
 - [ ] Select a job position

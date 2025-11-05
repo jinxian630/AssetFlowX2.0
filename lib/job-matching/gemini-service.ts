@@ -10,11 +10,11 @@ import type { CredentialSummary } from "@/types/payments"
 
 // Initialize Gemini client
 function getGeminiClient(): GoogleGenerativeAI {
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GENERATIVE_LANGUAGE_API_KEY
   
   if (!apiKey) {
     throw new Error(
-      "GEMINI_API_KEY environment variable is not set. Please configure it in .env.local"
+      "Generative Language API Key (GENERATIVE_LANGUAGE_API_KEY) environment variable is not set. Please configure it in .env.local"
     )
   }
   
@@ -175,7 +175,7 @@ export async function matchResumeToJob(
     // Retry logic for 503 errors
     let geminiResult
     let response
-    let text
+    let text: string | undefined
     let attempts = 0
     const maxAttempts = 3
     
@@ -193,6 +193,11 @@ export async function matchResumeToJob(
         // Wait before retrying (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, 1000 * attempts))
       }
+    }
+    
+    // Ensure we have text before parsing
+    if (!text) {
+      throw new Error("Failed to get response text from AI model")
     }
     
     // Parse and validate response

@@ -14,6 +14,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as JobMatchRequest
 
+    // Check for API key configuration early
+    if (!process.env.GENERATIVE_LANGUAGE_API_KEY) {
+      return NextResponse.json(
+        { 
+          error: "AI service is not configured",
+          details: "Generative Language API Key (GENERATIVE_LANGUAGE_API_KEY) environment variable is not set. Please configure it in .env.local"
+        },
+        { status: 503 }
+      )
+    }
+
     // Validate request
     if (!body.resumeText || !body.resumeText.trim()) {
       return NextResponse.json(
@@ -71,6 +82,24 @@ export async function POST(request: NextRequest) {
       userCredentials
     )
 
+    // Check if the result indicates a configuration error (API key missing)
+    // This happens when the service returns a fallback result due to missing API key
+    if (
+      matchResult.matchScore === 0 &&
+      matchResult.analysis.overallMatch === 0 &&
+      (matchResult.recommendation?.includes("GENERATIVE_LANGUAGE_API_KEY") || 
+       matchResult.recommendation?.includes("GEMINI_API_KEY") || 
+       matchResult.recommendation?.includes("Generative Language API Key"))
+    ) {
+      return NextResponse.json(
+        {
+          error: "AI service is not configured",
+          details: "Generative Language API Key (GENERATIVE_LANGUAGE_API_KEY) environment variable is not set. Please configure it in .env.local"
+        },
+        { status: 503 }
+      )
+    }
+
     // Prepare response
     const response: JobMatchResponse = {
       qualified: matchResult.qualified,
@@ -84,10 +113,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response)
   } catch (error) {
     console.error("Job matching API error:", error)
+    
+    // Check if it's a configuration error
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    if (errorMessage.includes("GENERATIVE_LANGUAGE_API_KEY") || 
+        errorMessage.includes("GEMINI_API_KEY") || 
+        errorMessage.includes("Generative Language API Key")) {
+      return NextResponse.json(
+        {
+          error: "AI service is not configured",
+          details: "Generative Language API Key (GENERATIVE_LANGUAGE_API_KEY) environment variable is not set. Please configure it in .env.local"
+        },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
       {
         error: "Failed to match resume to job position",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: errorMessage,
       },
       { status: 500 }
     )

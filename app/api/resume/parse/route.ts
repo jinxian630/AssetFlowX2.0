@@ -14,9 +14,18 @@ export const maxDuration = 30
 // Dynamic import for pdf-parse to avoid build issues
 const getPdfParser = async () => {
   const pdfParseModule = await import("pdf-parse")
-  // pdf-parse exports PDFParse class
-  const PDFParse = pdfParseModule.PDFParse || pdfParseModule.default?.PDFParse || pdfParseModule.default || pdfParseModule
-  // Create an instance and return a function that wraps it
+  // pdf-parse v2.x exports PDFParse class
+  // Type assertion needed because TypeScript doesn't recognize the class export on dynamic import
+  type PDFParseClass = new (options: { data: Buffer }) => {
+    getText(): Promise<{ text: string; info?: any; metadata?: any }>
+  }
+  const PDFParse = (pdfParseModule as unknown as { PDFParse: PDFParseClass }).PDFParse
+  
+  if (!PDFParse || typeof PDFParse !== 'function') {
+    throw new Error("PDFParse class not found in pdf-parse module")
+  }
+  
+  // Return a function that creates an instance and extracts text
   return async (buffer: Buffer) => {
     const parser = new PDFParse({ data: buffer })
     const result = await parser.getText()
