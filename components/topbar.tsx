@@ -1,10 +1,28 @@
 "use client"
 
-import { Search, Bell, User } from "lucide-react"
+import { Search, Bell, User, LogOut, Wallet as WalletIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useWallet } from "@/lib/useWallet"
+import { useRouter } from "next/navigation"
 
 export function Topbar() {
+  const { disconnect, address, walletType } = useWallet()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    disconnect()
+    router.push("/")
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
       {/* Search */}
@@ -31,11 +49,37 @@ export function Topbar() {
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* User Avatar */}
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <User className="h-5 w-5" />
-          <span className="sr-only">User menu</span>
-        </Button>
+        {/* User Menu with Logout */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <User className="h-5 w-5" />
+              <span className="sr-only">User menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {address && (
+              <>
+                <DropdownMenuItem disabled>
+                  <WalletIcon className="mr-2 h-4 w-4" />
+                  <div className="flex flex-col">
+                    <span className="text-xs capitalize">{walletType || "Wallet"}</span>
+                    <span className="text-xs font-mono">
+                      {address.slice(0, 6)}...{address.slice(-4)}
+                    </span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Disconnect & Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

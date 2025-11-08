@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -17,12 +17,14 @@ import {
   Wallet,
   ChevronRight,
   Settings2,
-  Briefcase
+  Briefcase,
+  LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useTheme } from "next-themes"
+import { useWallet } from "@/lib/useWallet"
 
 const navItems = [
   // Portfolio & Analytics
@@ -104,8 +106,15 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { disconnect, address } = useWallet()
+
+  const handleLogout = () => {
+    disconnect()
+    router.push("/")
+  }
 
   return (
     <>
@@ -219,7 +228,7 @@ export function Sidebar() {
             </div>
 
             {/* Management Section */}
-            <div>
+            <div className="mb-6">
               <div className="mb-2 px-3">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Course & Task Management
@@ -252,10 +261,40 @@ export function Sidebar() {
                 })}
               </div>
             </div>
+
+            {/* Logout Section */}
+            <div>
+              <div className="mb-2 px-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Account
+                </p>
+              </div>
+              <div className="space-y-1">
+                <button
+                  onClick={handleLogout}
+                  className="group flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all w-full text-left text-destructive hover:bg-destructive/10"
+                >
+                  <div className="flex items-center gap-3">
+                    <LogOut className="h-5 w-5 flex-shrink-0" />
+                    <span>Disconnect & Logout</span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </nav>
 
           {/* Footer */}
           <div className="border-t p-4 space-y-3">
+            {/* Wallet Address Display */}
+            {address && (
+              <div className="rounded-lg bg-muted/50 p-2 border">
+                <p className="text-xs text-muted-foreground mb-1">Connected Wallet</p>
+                <p className="text-xs font-mono truncate">
+                  {address.slice(0, 6)}...{address.slice(-4)}
+                </p>
+              </div>
+            )}
+
             {/* Theme Toggle */}
             <Button
               variant="outline"
@@ -265,6 +304,17 @@ export function Sidebar() {
             >
               {theme === "dark" ? "☀️" : "🌙"}
               <span className="text-sm">{theme === "dark" ? "Light" : "Dark"} Mode</span>
+            </Button>
+
+            {/* Logout Button */}
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-start gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm">Disconnect & Logout</span>
             </Button>
 
             {/* Status Badge */}

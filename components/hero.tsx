@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wallet, AlertCircle } from "lucide-react";
+import { Wallet, AlertCircle, LayoutDashboard } from "lucide-react";
 import { useWallet } from "@/lib/useWallet";
+import { useRouter } from "next/navigation";
 import ConnectionSuccessModal from "./connection-success-modal";
 
 export default function Hero() {
+  const router = useRouter();
   const {
     isConnecting,
     isConnected,
@@ -18,6 +20,19 @@ export default function Hero() {
 
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-[#020617] overflow-hidden">
+      {/* Skip Login - Dashboard Button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        whileHover={{ scale: 1.1, boxShadow: "0 0 20px #FF2D95" }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => router.push("/dashboard")}
+        className="absolute top-6 right-6 z-30 p-3 rounded-full bg-gradient-to-r from-[#FF2D95] to-[#9A4DFF] text-white shadow-[0_0_15px_#FF2D95] hover:shadow-[0_0_25px_#FF2D95] transition-all"
+        title="Skip to Dashboard"
+      >
+        <LayoutDashboard className="w-6 h-6" />
+      </motion.button>
 
       {/* Cyberpunk Glow Background */}
       <div className="absolute inset-0">
