@@ -7,6 +7,7 @@ export interface JobPosition {
   id: string
   title: string
   company: string
+  companyLogo?: string // Company logo URL or icon name
   description: string
   requirements: string[]
   skills: string[]

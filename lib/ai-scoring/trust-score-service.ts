@@ -380,7 +380,12 @@ export async function calculateTrustScore(input: TrustScoreInput): Promise<Trust
     else if (calculatedScore >= 60) riskLevel = "moderate"
     else if (calculatedScore >= 40) riskLevel = "high"
     else riskLevel = "critical"
-    
+
+    // Extract data from input for use in riskIndicators
+    const complianceStatus = input.complianceStatus
+    const sanctionsFlags: string[] = parsed.components?.eyPillars?.factors?.sanctionsCompliance?.flags || []
+    const fraudFlags: string[] = parsed.components?.eyPillars?.factors?.fraudDetection?.flags || []
+
     // Build complete TrustScore object
     const trustScore: TrustScore = {
       score: Math.max(0, Math.min(100, calculatedScore)), // Clamp to 0-100
@@ -452,23 +457,23 @@ export async function calculateTrustScore(input: TrustScoreInput): Promise<Trust
             sanctionsCompliance: {
               score: parsed.components?.eyPillars?.factors?.sanctionsCompliance?.score || 50,
               weight: 0.4,
-              flags: parsed.components?.eyPillars?.factors?.sanctionsCompliance?.flags || [],
+              flags: sanctionsFlags,
               riskIndicators: {
-                sanctionedEntityExposure: knownFlags.some(f => f.toLowerCase().includes("sanction") || f.toLowerCase().includes("ofac")),
-                mixerInteraction: knownFlags.some(f => f.toLowerCase().includes("mixer") || f.toLowerCase().includes("tornado")),
-                darknetMarketExposure: knownFlags.some(f => f.toLowerCase().includes("darknet")),
-                terroristFinancingRisk: knownFlags.some(f => f.toLowerCase().includes("terror"))
+                sanctionedEntityExposure: sanctionsFlags.some(f => f.toLowerCase().includes("sanction") || f.toLowerCase().includes("ofac")),
+                mixerInteraction: sanctionsFlags.some(f => f.toLowerCase().includes("mixer") || f.toLowerCase().includes("tornado")),
+                darknetMarketExposure: sanctionsFlags.some(f => f.toLowerCase().includes("darknet")),
+                terroristFinancingRisk: sanctionsFlags.some(f => f.toLowerCase().includes("terror"))
               }
             },
             fraudDetection: {
               score: parsed.components?.eyPillars?.factors?.fraudDetection?.score || 50,
               weight: 0.3,
-              flags: parsed.components?.eyPillars?.factors?.fraudDetection?.flags || [],
+              flags: fraudFlags,
               riskIndicators: {
-                phishingVictim: knownFlags.some(f => f.toLowerCase().includes("phishing")),
-                rugPullInvolvement: knownFlags.some(f => f.toLowerCase().includes("rug")),
-                ponziSchemeExposure: knownFlags.some(f => f.toLowerCase().includes("ponzi")),
-                pumpAndDumpActivity: knownFlags.some(f => f.toLowerCase().includes("pump"))
+                phishingVictim: fraudFlags.some(f => f.toLowerCase().includes("phishing")),
+                rugPullInvolvement: fraudFlags.some(f => f.toLowerCase().includes("rug")),
+                ponziSchemeExposure: fraudFlags.some(f => f.toLowerCase().includes("ponzi")),
+                pumpAndDumpActivity: fraudFlags.some(f => f.toLowerCase().includes("pump"))
               }
             },
             regulatoryCompliance: {

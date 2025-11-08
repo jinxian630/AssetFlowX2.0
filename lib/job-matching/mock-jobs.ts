@@ -10,6 +10,7 @@ export const mockJobPositions: JobPosition[] = [
     id: "job_web3_dev_001",
     title: "Senior Web3 Developer",
     company: "AssetFlowX",
+    companyLogo: "🏢",
     description: "We are looking for an experienced Web3 developer to build and maintain our blockchain-based credential and escrow platform. You will work on smart contracts, integrate with multiple chains, and ensure security and compliance.",
     requirements: [
       "5+ years of software development experience",
@@ -40,6 +41,7 @@ export const mockJobPositions: JobPosition[] = [
     id: "job_frontend_dev_002",
     title: "Frontend Developer (React/Next.js)",
     company: "AssetFlowX",
+    companyLogo: "🏢",
     description: "Join our team to build beautiful and intuitive user interfaces for our digital asset platform. You'll work with modern React, Next.js, and TypeScript to create seamless user experiences.",
     requirements: [
       "3+ years of frontend development experience",
@@ -70,6 +72,7 @@ export const mockJobPositions: JobPosition[] = [
     id: "job_ai_engineer_003",
     title: "AI/ML Engineer - Risk Scoring",
     company: "AssetFlowX",
+    companyLogo: "🏢",
     description: "Develop and maintain our AI-powered risk scoring and assessment system. You'll work with LLMs, prompt engineering, and machine learning models to provide intelligent risk analysis.",
     requirements: [
       "4+ years of AI/ML engineering experience",
@@ -100,6 +103,7 @@ export const mockJobPositions: JobPosition[] = [
     id: "job_product_manager_004",
     title: "Product Manager - Digital Assets",
     company: "AssetFlowX",
+    companyLogo: "🏢",
     description: "Lead product strategy and development for our Web3 financial platform. You'll work closely with engineering, design, and business teams to deliver innovative features for digital asset management.",
     requirements: [
       "5+ years of product management experience",

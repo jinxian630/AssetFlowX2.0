@@ -6,33 +6,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { PageHeading } from "@/components/ui/page-heading"
-import { ResumeUpload } from "@/components/resume-upload"
+import { JobCard } from "@/components/job-card"
 import { JobMatchResultDialog } from "@/components/job-match-result-dialog"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
-import { Sparkles, Briefcase, FileText, Award } from "lucide-react"
+import { Sparkles, Briefcase } from "lucide-react"
 import { api } from "@/lib/api"
 import type { JobPosition, JobMatchResult } from "@/types/job-matching"
 import type { CredentialSummary } from "@/types/payments"
 
 export default function JobMatchingPage() {
-  const [resumeText, setResumeText] = useState("")
-  const [selectedJobId, setSelectedJobId] = useState<string>("")
   const [jobs, setJobs] = useState<JobPosition[]>([])
   const [isLoadingJobs, setIsLoadingJobs] = useState(true)
-  const [isMatching, setIsMatching] = useState(false)
+  const [applyingJobId, setApplyingJobId] = useState<string | null>(null)
   const [matchResult, setMatchResult] = useState<JobMatchResult | null>(null)
   const [showResultDialog, setShowResultDialog] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<JobPosition | null>(null)
   const [userCredentials, setUserCredentials] = useState<CredentialSummary[]>([])
 
   // Fetch available jobs
@@ -47,9 +36,6 @@ export default function JobMatchingPage() {
         }
         const data = await response.json()
         setJobs(data.jobs || [])
-        if (data.jobs && data.jobs.length > 0) {
-          setSelectedJobId(data.jobs[0].id)
-        }
       } catch (error) {
         console.error("Failed to fetch jobs:", error)
         toast.error(error instanceof Error ? error.message : "Failed to load job positions")
@@ -76,21 +62,34 @@ export default function JobMatchingPage() {
     fetchCredentials()
   }, [])
 
-  // Handle job matching
-  const handleMatch = async () => {
-    if (!resumeText.trim()) {
-      toast.error("Please upload or paste your resume")
-      return
-    }
+  // Handle job application
+  const handleApply = async (jobId: string) => {
+    // In a real application, this would fetch the user's resume from their profile
+    // For now, we'll use a placeholder resume text
+    const mockResumeText = `
+      Professional Summary:
+      Experienced software developer with 5+ years in web development.
 
-    if (!selectedJobId) {
-      toast.error("Please select a job position")
-      return
-    }
+      Skills:
+      - JavaScript, TypeScript, React, Next.js
+      - Web3.js, Ethers.js, Solidity
+      - Node.js, Python
+      - UI/UX Design, Tailwind CSS
+
+      Experience:
+      - Senior Developer at Tech Company (3 years)
+      - Full Stack Developer at Startup (2 years)
+
+      Education:
+      - BS in Computer Science
+    `
 
     try {
-      setIsMatching(true)
-      toast.info("AI is analyzing your resume...", {
+      setApplyingJobId(jobId)
+      const job = jobs.find((j) => j.id === jobId)
+      setSelectedJob(job || null)
+
+      toast.info("AI is analyzing your qualifications...", {
         description: "This may take a few seconds",
       })
 
@@ -100,17 +99,17 @@ export default function JobMatchingPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          resumeText: resumeText.trim(),
-          jobPositionId: selectedJobId,
+          resumeText: mockResumeText.trim(),
+          jobPositionId: jobId,
           userCredentials: userCredentials.map((c) => c.id),
         }),
       })
 
       if (!response.ok) {
         const error = await response.json()
-        const errorMessage = error.details 
+        const errorMessage = error.details
           ? `${error.error}: ${error.details}`
-          : error.error || "Failed to match resume"
+          : error.error || "Failed to submit application"
         throw new Error(errorMessage)
       }
 
@@ -119,23 +118,21 @@ export default function JobMatchingPage() {
       setMatchResult(data.matchResult)
 
       if (data.qualified) {
-        toast.success(data.message || "Your resume has been sent!")
+        toast.success(data.message || "Application submitted successfully!")
       } else {
-        toast.warning(data.message || "You are not available for this position")
+        toast.warning(data.message || "Application submitted - Please review requirements")
       }
 
       setShowResultDialog(true)
     } catch (error) {
-      console.error("Job matching error:", error)
+      console.error("Job application error:", error)
       toast.error(
-        error instanceof Error ? error.message : "Failed to match resume"
+        error instanceof Error ? error.message : "Failed to submit application"
       )
     } finally {
-      setIsMatching(false)
+      setApplyingJobId(null)
     }
   }
-
-  const selectedJob = jobs.find((j) => j.id === selectedJobId)
 
   return (
     <div className="space-y-6">
@@ -146,138 +143,37 @@ export default function JobMatchingPage() {
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <p className="text-muted-foreground">
-          AI-powered resume matching with credential tracking. Get instant feedback on your qualifications.
+          Browse available positions and apply with one click. AI will analyze your qualifications instantly.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Left Column - Resume Upload */}
-        <Card className="p-6 space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Your Resume
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Upload your resume file or paste the text content
-            </p>
-          </div>
-
-          <ResumeUpload
-            resumeText={resumeText}
-            onResumeTextChange={setResumeText}
-          />
-        </Card>
-
-        {/* Right Column - Job Selection */}
-        <Card className="p-6 space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              Select Job Position
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Choose the position you want to apply for
-            </p>
-          </div>
-
-          {isLoadingJobs ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-64 w-full" />
+      {/* Job Cards Grid */}
+      {isLoadingJobs ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="space-y-4">
+              <Skeleton className="h-[400px] w-full rounded-lg" />
             </div>
-          ) : (
-            <div className="space-y-4">
-              <Select value={selectedJobId} onValueChange={setSelectedJobId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a job position" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jobs.map((job) => (
-                    <SelectItem key={job.id} value={job.id}>
-                      {job.title} - {job.company}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {selectedJob && (
-                <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                  <div>
-                    <h3 className="font-semibold text-lg">{selectedJob.title}</h3>
-                    <p className="text-sm text-muted-foreground">{selectedJob.company}</p>
-                  </div>
-                  <p className="text-sm">{selectedJob.description}</p>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">
-                      Required Skills:
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {selectedJob.skills.slice(0, 5).map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="text-xs px-2 py-1 rounded bg-primary/10 text-primary"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {selectedJob.skills.length > 5 && (
-                        <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
-                          +{selectedJob.skills.length - 5} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    <p>Experience: {selectedJob.experience}</p>
-                    {selectedJob.location && <p>Location: {selectedJob.location}</p>}
-                    {selectedJob.salary && <p>Salary: {selectedJob.salary}</p>}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* User Credentials Info */}
-          {userCredentials.length > 0 && (
-            <div className="rounded-lg border bg-primary/5 border-primary/20 p-4">
-              <div className="flex items-start gap-2">
-                <Award className="h-4 w-4 text-primary mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-xs font-medium mb-1">
-                    Your Credentials ({userCredentials.length})
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Your credentials will be included in the AI analysis
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </Card>
-      </div>
-
-      {/* Match Button */}
-      <div className="flex justify-center">
-        <Button
-          onClick={handleMatch}
-          disabled={!resumeText.trim() || !selectedJobId || isMatching}
-          size="lg"
-          className="min-w-[200px]"
-        >
-          {isMatching ? (
-            <>
-              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Match My Resume
-            </>
-          )}
-        </Button>
-      </div>
+          ))}
+        </div>
+      ) : jobs.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onApply={handleApply}
+              isApplying={applyingJobId === job.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No jobs available</h3>
+          <p className="text-muted-foreground">Check back later for new opportunities</p>
+        </div>
+      )}
 
       {/* Result Dialog */}
       {matchResult && selectedJob && (
